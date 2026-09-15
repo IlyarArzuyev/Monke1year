@@ -1359,11 +1359,6 @@ function openLetterOverlay(){
 }
 
 async function downloadLetterPDF(){
-  if(document.fonts && document.fonts.ready){
-    try { await document.fonts.ready; } catch(e){}
-  }
-
-  async function downloadLetterPDF(){
   const link = document.createElement('a');
 
   link.href = 'letter.pdf';

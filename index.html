@@ -1363,36 +1363,15 @@ async function downloadLetterPDF(){
     try { await document.fonts.ready; } catch(e){}
   }
 
-  const wrapper = document.createElement('div');
-  wrapper.className = 'pdf-letter';
-  wrapper.innerHTML = `<div style="position:relative;width:100%;height:100%;">${letterHTML()}</div>`;
-  document.body.appendChild(wrapper);
+  async function downloadLetterPDF(){
+  const link = document.createElement('a');
 
-  // ждём отрисовки
-  await new Promise(r => setTimeout(r, 200));
+  link.href = 'letter.pdf';
+  link.download = 'письмо любимой.pdf';
 
-  const canvas = await html2canvas(wrapper, {
-    scale: 2,
-    useCORS: true,
-    allowTaint: true,
-    backgroundColor: '#e8d9b8',
-    logging: false,
-    width: 800,
-    height: 1131,
-    windowWidth: 800,
-    windowHeight: 1131
-  });
-
-  wrapper.remove();
-
-  const imgData = canvas.toDataURL('image/jpeg', 0.95);
-  const { jsPDF } = window.jspdf;
-  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-  const pdfW = pdf.internal.pageSize.getWidth();
-  const pdfH = pdf.internal.pageSize.getHeight();
-
-  pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH);
-  pdf.save('letter-20.09.2025.pdf');
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
 }
 
 function showToast(msg){

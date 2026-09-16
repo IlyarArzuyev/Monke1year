@@ -755,6 +755,91 @@
     pointer-events:none;
   }
 
+
+  /* ---------- SECRET CALENDAR GATE ---------- */
+  #authGate{
+    position:fixed; inset:0; z-index:1000;
+    display:flex; align-items:center; justify-content:center;
+    padding:24px 18px;
+    background:
+      radial-gradient(circle at 50% 25%, rgba(220,39,67,.12), transparent 35%),
+      #070707;
+    overflow:auto;
+  }
+  .auth-wrap{width:100%; max-width:390px; text-align:center;}
+  .auth-kicker{
+    color:#8f8f8f; font-size:10px; font-weight:800;
+    letter-spacing:.22em; text-transform:uppercase; margin-bottom:14px;
+  }
+  .auth-title{
+    font-family:'Cormorant Garamond',serif; font-size:36px;
+    line-height:1.05; font-weight:600; margin:0 0 10px;
+  }
+  .auth-subtitle{
+    color:var(--text-muted); font-size:14px; line-height:1.55;
+    margin:0 auto 25px; max-width:290px;
+  }
+  .calendar{
+    background:rgba(20,20,20,.92); border:1px solid #292929;
+    border-radius:24px; padding:18px 15px 15px;
+    box-shadow:0 24px 80px rgba(0,0,0,.5);
+    backdrop-filter:blur(18px);
+  }
+  .cal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+  .cal-title{font-size:16px; font-weight:800; letter-spacing:-.02em; cursor:pointer;}
+  .cal-nav{
+    width:38px; height:38px; border:1px solid #303030; border-radius:50%;
+    background:#181818; color:#fff; font-size:21px; line-height:1; cursor:pointer;
+  }
+  .cal-nav:active{transform:scale(.92);}
+  .cal-week,.cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:5px;}
+  .cal-week{margin-bottom:6px;}
+  .cal-week span{font-size:9px; color:#666; font-weight:800; text-transform:uppercase;}
+  .cal-day{
+    aspect-ratio:1; border:0; border-radius:12px; background:transparent; color:#eee;
+    font:600 13px 'Manrope',sans-serif; cursor:pointer; position:relative;
+  }
+  .cal-day:hover{background:#242424;}
+  .cal-day.other{color:#444;}
+  .cal-day.today::after{
+    content:''; position:absolute; width:4px; height:4px; border-radius:50%;
+    left:50%; bottom:5px; transform:translateX(-50%); background:#777;
+  }
+  .cal-day.selected{background:var(--gradient); color:#fff; box-shadow:0 7px 20px rgba(220,39,67,.28);}
+  .cal-day.selected::after{background:#fff;}
+  .cal-selected{
+    min-height:20px; margin-top:14px; color:#d0d0d0; font-size:12px; font-weight:600;
+  }
+  .cal-action{margin-top:10px;}
+  .auth-error{
+    height:20px; margin-top:9px; color:#ff8993; font-size:11px; font-weight:600;
+    opacity:0; transition:opacity .2s;
+  }
+  .auth-error.show{opacity:1;}
+  #authGate.unlocking{animation:gateFade .85s ease forwards;}
+  @keyframes gateFade{to{opacity:0; transform:scale(1.025); visibility:hidden;}}
+  .heart-transition{
+    position:fixed; inset:0; z-index:1100; background:#050505;
+    display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none;
+  }
+  .heart-transition.show{animation:heartGate 1.65s ease forwards;}
+  .heart-dot{
+    width:7px; height:7px; border-radius:50%; background:#fff;
+    box-shadow:0 0 14px 4px rgba(255,255,255,.55);
+    animation:dotToHeart 1.15s ease forwards;
+  }
+  .heart-symbol{position:absolute; font-size:64px; opacity:0; transform:scale(.2); filter:drop-shadow(0 0 25px rgba(255,48,64,.7));}
+  .heart-transition.show .heart-symbol{animation:heartAppear .7s .65s cubic-bezier(.2,.8,.2,1) forwards;}
+  @keyframes dotToHeart{0%,45%{transform:scale(1);opacity:1}100%{transform:scale(14);opacity:0}}
+  @keyframes heartAppear{to{opacity:1;transform:scale(1)}}
+  @keyframes heartGate{0%{opacity:1}75%{opacity:1}100%{opacity:0;visibility:hidden}}
+
+  @media (max-width:400px){
+    .auth-title{font-size:32px;}
+    .calendar{padding:15px 11px 12px;}
+    .cal-grid{gap:3px;}
+  }
+
   /* ---------- TOAST ---------- */
   .toast{
     position:fixed;
@@ -789,6 +874,29 @@
 </style>
 </head>
 <body>
+
+
+<!-- SECRET DATE GATE -->
+<div id="authGate">
+  <div class="auth-wrap">
+    <div class="auth-kicker">Только для тебя</div>
+    <h1 class="auth-title">Вспомни тот день.</h1>
+    <p class="auth-subtitle">Есть одна дата, с которой началась наша история.</p>
+    <div class="calendar">
+      <div class="cal-head">
+        <button class="cal-nav" id="prevMonth" aria-label="Предыдущий месяц">‹</button>
+        <div class="cal-title" id="calTitle"></div>
+        <button class="cal-nav" id="nextMonth" aria-label="Следующий месяц">›</button>
+      </div>
+      <div class="cal-week"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span></div>
+      <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-selected" id="calSelected">Выбери день</div>
+      <button class="btn-primary cal-action" id="unlockBtn" disabled>Открыть ❤️</button>
+      <div class="auth-error" id="authError">Кажется, это был другой день…</div>
+    </div>
+  </div>
+</div>
+<div class="heart-transition" id="heartTransition" aria-hidden="true"><div class="heart-dot"></div><div class="heart-symbol">❤️</div></div>
 
 <div id="app">
   <header class="ig-top">
@@ -1394,6 +1502,118 @@ document.getElementById('backBtn').onclick = () => {
   else if(current === 0){ current = -1; renderIntro(); }
 };
 
+/* ============================================================
+   СЕКРЕТНЫЙ КАЛЕНДАРЬ — ВХОД
+   Показывает актуальный месяц/год при каждом открытии.
+   Правильная дата берётся из CONFIG.startDate.
+   ============================================================ */
+const authGate = document.getElementById('authGate');
+const calGrid = document.getElementById('calGrid');
+const calTitle = document.getElementById('calTitle');
+const calSelected = document.getElementById('calSelected');
+const unlockBtn = document.getElementById('unlockBtn');
+const authError = document.getElementById('authError');
+const heartTransition = document.getElementById('heartTransition');
+
+const monthNames = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const monthNamesGen = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const weekNames = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+
+function parseSecretDate(value){
+  const m = String(value).match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+  if(!m) return null;
+  return {day:Number(m[1]), month:Number(m[2])-1, year:Number(m[3])};
+}
+
+const secretDate = parseSecretDate(window.CONFIG.startDate) || {day:20, month:8, year:2025};
+const now = new Date();
+let calendarYear = now.getFullYear();
+let calendarMonth = now.getMonth();
+let selectedDate = null;
+
+function sameDate(a,b){
+  return a && b && a.day===b.day && a.month===b.month && a.year===b.year;
+}
+
+function renderCalendar(){
+  calTitle.textContent = `${monthNames[calendarMonth]} ${calendarYear}`;
+  calGrid.innerHTML = '';
+  const first = new Date(calendarYear, calendarMonth, 1);
+  const daysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+  const prevDays = new Date(calendarYear, calendarMonth, 0).getDate();
+  let mondayIndex = (first.getDay() + 6) % 7;
+
+  for(let i=0; i<42; i++){
+    const cell = document.createElement('button');
+    cell.className = 'cal-day';
+    let day, month=calendarMonth, year=calendarYear, other=false;
+
+    if(i < mondayIndex){
+      day = prevDays - mondayIndex + i + 1;
+      month = calendarMonth - 1;
+      if(month < 0){month=11; year--;}
+      other=true;
+    } else if(i >= mondayIndex + daysInMonth){
+      day = i - mondayIndex - daysInMonth + 1;
+      month = calendarMonth + 1;
+      if(month > 11){month=0; year++;}
+      other=true;
+    } else {
+      day = i - mondayIndex + 1;
+    }
+
+    cell.textContent = day;
+    if(other) cell.classList.add('other');
+
+    const today = new Date();
+    if(day===today.getDate() && month===today.getMonth() && year===today.getFullYear()) cell.classList.add('today');
+
+    const value = {day, month, year};
+    if(sameDate(value, selectedDate)) cell.classList.add('selected');
+
+    cell.onclick = () => {
+      selectedDate = value;
+      authError.classList.remove('show');
+      calSelected.textContent = `${day} ${monthNamesGen[month]} ${year}`;
+      unlockBtn.disabled = false;
+      renderCalendar();
+    };
+    calGrid.appendChild(cell);
+  }
+}
+
+function shiftMonth(delta){
+  calendarMonth += delta;
+  if(calendarMonth < 0){calendarMonth=11; calendarYear--;}
+  if(calendarMonth > 11){calendarMonth=0; calendarYear++;}
+  renderCalendar();
+}
+
+document.getElementById('prevMonth').onclick = () => shiftMonth(-1);
+document.getElementById('nextMonth').onclick = () => shiftMonth(1);
+
+calTitle.onclick = () => {
+  // Быстрый возврат к текущему месяцу по нажатию на заголовок.
+  calendarYear = now.getFullYear();
+  calendarMonth = now.getMonth();
+  renderCalendar();
+};
+
+unlockBtn.onclick = () => {
+  if(!selectedDate) return;
+  if(sameDate(selectedDate, secretDate)){
+    unlockBtn.disabled = true;
+    heartTransition.classList.add('show');
+    authGate.classList.add('unlocking');
+    setTimeout(() => { authGate.style.display='none'; }, 900);
+    setTimeout(() => { heartTransition.style.display='none'; }, 1750);
+  } else {
+    authError.classList.add('show');
+    authError.textContent = 'Кажется, это был другой день…';
+  }
+};
+
+renderCalendar();
 renderIntro();
 </script>
 
